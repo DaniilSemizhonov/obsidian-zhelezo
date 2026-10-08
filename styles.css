@@ -1,25 +1,91 @@
-/* Панель рассчитана на телефон в зале: крупные цели для пальца, одна колонка. */
+/* Железо: рассчитано на телефон в зале — крупные цели для пальца, одна колонка. */
 
-.wp-view {
-  padding: var(--size-4-3) var(--size-4-3) calc(var(--size-4-8) * 2);
+.zh-view {
+  padding: var(--size-4-3) var(--size-4-3) var(--size-4-8);
   max-width: 640px;
   margin: 0 auto;
 }
 
-.wp-head {
+/* ---------- Переключатель плана и вкладки ---------- */
+
+.zh-plan-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  height: auto;
+  padding: 4px 8px;
+  margin: 0 0 var(--size-4-2) -8px;
+  background: transparent;
+  box-shadow: none;
+  color: var(--text-muted);
+  font-size: var(--font-ui-small);
+}
+
+.zh-plan-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.zh-plan-chevron svg {
+  width: 14px;
+  height: 14px;
+}
+
+.zh-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: var(--size-4-4);
+  border-radius: var(--radius-m);
+  background: var(--background-secondary);
+}
+
+.zh-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  height: auto;
+  min-height: 48px;
+  padding: 6px 2px;
+  background: transparent;
+  box-shadow: none;
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+}
+
+.zh-tab svg {
+  width: 18px;
+  height: 18px;
+}
+
+.zh-tab.is-active {
+  background: var(--background-primary);
+  color: var(--text-normal);
+  font-weight: var(--font-semibold);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+/* ---------- Шапка тренировки ---------- */
+
+.zh-head {
   margin-bottom: var(--size-4-3);
 }
 
-.wp-title {
+.zh-title {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: var(--size-4-2);
   font-size: 1.5em;
   font-weight: var(--font-bold);
   line-height: 1.2;
 }
 
-.wp-badge {
+.zh-badge {
   font-size: var(--font-ui-smaller);
   font-weight: var(--font-semibold);
   padding: 2px 8px;
@@ -28,13 +94,30 @@
   color: var(--interactive-accent);
 }
 
-.wp-subtitle {
+.zh-subtitle {
   color: var(--text-muted);
   font-size: var(--font-ui-small);
 }
 
-/* Кнопки МЦ и тренировок — горизонтальная прокрутка, если не влезают. */
-.wp-chips {
+.zh-note {
+  font-size: var(--font-ui-small);
+  color: var(--color-green);
+  margin-bottom: var(--size-4-2);
+}
+
+.zh-note.is-skipped {
+  color: var(--text-muted);
+}
+
+.zh-empty {
+  color: var(--text-muted);
+  font-size: var(--font-ui-small);
+  margin: var(--size-4-2) 0;
+}
+
+/* ---------- Кнопки МЦ / тренировок ---------- */
+
+.zh-chips {
   display: flex;
   gap: 6px;
   overflow-x: auto;
@@ -43,11 +126,11 @@
   scrollbar-width: none;
 }
 
-.wp-chips::-webkit-scrollbar {
+.zh-chips::-webkit-scrollbar {
   display: none;
 }
 
-.wp-chip {
+.zh-chip {
   flex: 0 0 auto;
   min-width: 48px;
   min-height: 36px;
@@ -60,25 +143,27 @@
   box-shadow: none;
 }
 
-.wp-chip.is-done {
+.zh-chip.is-done {
   border-color: var(--color-green);
   color: var(--color-green);
 }
 
-.wp-chip.is-active {
+.zh-chip.is-active {
   background: var(--interactive-accent);
   border-color: var(--interactive-accent);
   color: var(--text-on-accent);
 }
 
-.wp-progress {
+/* ---------- Прогресс ---------- */
+
+.zh-progress {
   display: flex;
   align-items: center;
   gap: var(--size-4-2);
   margin: var(--size-4-2) 0 var(--size-4-3);
 }
 
-.wp-progress-bar {
+.zh-progress-bar {
   flex: 1;
   height: 8px;
   border-radius: 4px;
@@ -86,53 +171,50 @@
   overflow: hidden;
 }
 
-.wp-progress-fill {
+.zh-progress-fill {
   height: 100%;
+  border-radius: 4px;
   background: var(--color-green);
   transition: width 0.2s;
 }
 
-.wp-progress-text {
+.zh-progress-text {
   font-size: var(--font-ui-small);
   color: var(--text-muted);
   white-space: nowrap;
 }
 
-.wp-note {
-  font-size: var(--font-ui-small);
-  color: var(--color-green);
-  margin-bottom: var(--size-4-2);
-}
+/* ---------- Карточки упражнений ---------- */
 
-.wp-list {
+.zh-list {
   display: flex;
   flex-direction: column;
   gap: var(--size-4-2);
 }
 
-.wp-card {
+.zh-card {
   padding: var(--size-4-3);
   border-radius: var(--radius-m);
   background: var(--background-secondary);
   border: 1px solid var(--background-modifier-border);
 }
 
-.wp-card.is-done {
+.zh-card.is-done {
   border-color: color-mix(in srgb, var(--color-green) 50%, transparent);
   background: color-mix(in srgb, var(--color-green) 8%, var(--background-secondary));
 }
 
-.wp-card.is-done .wp-card-name {
+.zh-card.is-done .zh-card-name {
   color: var(--text-muted);
 }
 
-.wp-card-top {
+.zh-card-top {
   display: flex;
   gap: var(--size-4-3);
   align-items: flex-start;
 }
 
-.wp-check {
+.zh-check {
   flex: 0 0 auto;
   width: 44px;
   height: 44px;
@@ -147,125 +229,405 @@
   color: var(--text-faint);
 }
 
-.wp-check svg {
+.zh-check svg {
   width: 28px;
   height: 28px;
 }
 
-.wp-card.is-done .wp-check {
+.zh-card.is-done .zh-check {
   color: var(--color-green);
 }
 
-.wp-card-info {
+.zh-card-info {
   flex: 1;
   min-width: 0;
 }
 
-.wp-card-name {
+.zh-card-name {
   font-weight: var(--font-semibold);
   line-height: 1.3;
 }
 
-.wp-card-meta {
+.zh-card-meta {
   margin-top: 2px;
   color: var(--text-muted);
   font-size: var(--font-ui-small);
 }
 
-.wp-fields {
+.zh-fields {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
   gap: var(--size-4-2);
   margin-top: var(--size-4-2);
 }
 
-.wp-field {
+.zh-field {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  margin-top: var(--size-4-2);
 }
 
-.wp-field-label {
+.zh-fields .zh-field {
+  margin-top: 0;
+}
+
+.zh-field-label {
   font-size: var(--font-ui-smaller);
   color: var(--text-muted);
 }
 
-.wp-field input {
+.zh-input {
   width: 100%;
   min-height: 40px;
   font-size: 16px; /* меньше 16px — iOS приближает страницу при фокусе */
 }
 
-.wp-field-weight input {
+.zh-field-weight .zh-input {
   font-weight: var(--font-semibold);
 }
 
-.wp-field-hint {
+.zh-field-hint {
   font-size: var(--font-ui-smaller);
   color: var(--text-faint);
 }
 
-.wp-footer {
+/* ---------- Низ вкладки «Тренировка» ---------- */
+
+.zh-footer {
   position: sticky;
   bottom: 0;
   padding: var(--size-4-3) 0;
-  background: linear-gradient(to bottom, transparent, var(--background-primary) 30%);
+  background: linear-gradient(to bottom, transparent, var(--background-primary) 25%);
 }
 
-.wp-finish {
+.zh-finish,
+.zh-add-wide {
   width: 100%;
   min-height: 48px;
   font-size: var(--font-ui-medium);
   font-weight: var(--font-semibold);
 }
 
-.wp-section-title {
-  font-weight: var(--font-semibold);
-  margin-bottom: var(--size-4-1);
+.zh-footer-more {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--size-4-2);
+  margin-top: var(--size-4-2);
 }
 
-.wp-history {
-  margin-top: var(--size-4-3);
+.zh-footer-more button {
+  min-height: 40px;
 }
 
-.wp-history-row {
+/* ---------- Редактор ---------- */
+
+.zh-section {
+  margin-bottom: var(--size-4-6);
+}
+
+.zh-section-head {
   display: flex;
-  gap: var(--size-4-3);
-  padding: 8px 0;
-  border-bottom: 1px solid var(--background-modifier-border);
-  cursor: pointer;
-  font-size: var(--font-ui-small);
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--size-4-2);
 }
 
-.wp-history-date {
-  min-width: 90px;
+.zh-section-title {
+  font-weight: var(--font-bold);
+  font-size: var(--font-ui-large);
+}
+
+.zh-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: 0 0 auto;
+}
+
+.zh-icon-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.zh-icon-btn.mod-warning {
+  color: var(--text-error);
+}
+
+.zh-mc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.zh-mc-row {
+  display: flex;
+  align-items: center;
+  gap: var(--size-4-2);
+}
+
+.zh-mc-num {
+  min-width: 44px;
+  font-size: var(--font-ui-small);
+  font-weight: var(--font-semibold);
   color: var(--text-muted);
 }
 
-.wp-open-plan {
+.zh-workout-head {
+  display: flex;
+  align-items: center;
+  gap: var(--size-4-2);
+  margin-bottom: var(--size-4-3);
+}
+
+.zh-input-title {
+  font-weight: var(--font-semibold);
+}
+
+.zh-edit-top {
+  display: flex;
+  align-items: center;
+  gap: var(--size-4-2);
+}
+
+.zh-edit-num {
+  font-weight: var(--font-semibold);
+  color: var(--text-muted);
+}
+
+.zh-sp-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-top: var(--size-4-3);
+  font-size: var(--font-ui-smaller);
+}
+
+.zh-sp-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.zh-sp-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.zh-sp-mc {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-faint);
+}
+
+.zh-sp-cell .zh-input {
+  padding: 4px 6px;
+}
+
+.zh-add {
+  width: 100%;
+  min-height: 44px;
+  margin-top: var(--size-4-2);
+}
+
+/* ---------- Журнал ---------- */
+
+.zh-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--size-4-2);
+  margin-bottom: var(--size-4-3);
+}
+
+.zh-stat {
+  padding: var(--size-4-2);
+  border-radius: var(--radius-m);
+  background: var(--background-secondary);
+}
+
+.zh-stat-value {
+  font-size: 1.3em;
+  font-weight: var(--font-bold);
+}
+
+.zh-stat-label {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+}
+
+.zh-journal {
+  margin-top: var(--size-4-3);
+}
+
+.zh-journal-row {
+  display: flex;
+  align-items: center;
+  gap: var(--size-4-3);
+  padding: 8px 0;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.zh-journal-icon {
+  color: var(--color-green);
+  display: flex;
+}
+
+.zh-journal-row.is-skipped .zh-journal-icon,
+.zh-journal-row.is-skipped .zh-journal-title {
+  color: var(--text-muted);
+}
+
+.zh-journal-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.zh-journal-title {
+  font-weight: var(--font-semibold);
+}
+
+.zh-journal-sub {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+}
+
+/* ---------- Прогресс ---------- */
+
+.zh-select {
+  width: 100%;
+  min-height: 40px;
+  margin-bottom: var(--size-4-3);
+}
+
+.zh-hero {
+  margin-bottom: var(--size-4-2);
+}
+
+.zh-hero-value {
+  font-size: 2.2em;
+  font-weight: var(--font-bold);
+  line-height: 1.1;
+}
+
+.zh-hero-label {
+  color: var(--text-muted);
+  font-size: var(--font-ui-small);
+}
+
+.zh-chart {
+  position: relative;
+  margin: var(--size-4-2) 0 var(--size-4-3);
+}
+
+.zh-chart svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+
+.zh-grid {
+  stroke: var(--background-modifier-border);
+  stroke-width: 1;
+}
+
+.zh-axis {
+  fill: var(--text-faint);
+  font-size: 10px;
+}
+
+.zh-line {
+  stroke: var(--interactive-accent);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.zh-dot {
+  fill: var(--interactive-accent);
+  stroke: var(--background-primary);
+  stroke-width: 2;
+}
+
+.zh-hit {
+  cursor: pointer;
+}
+
+.zh-label {
+  fill: var(--text-normal);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.zh-tip {
+  position: absolute;
+  transform: translate(-50%, calc(-100% - 12px));
+  padding: 4px 8px;
+  border-radius: var(--radius-s);
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  box-shadow: var(--shadow-s);
+  font-size: var(--font-ui-smaller);
+  color: var(--text-normal);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+.zh-tip.is-visible {
+  opacity: 1;
+}
+
+.zh-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-ui-small);
+}
+
+.zh-table th {
+  text-align: left;
+  color: var(--text-muted);
+  font-weight: var(--font-semibold);
+  border-bottom: 1px solid var(--background-modifier-border);
+  padding: 4px 6px;
+}
+
+.zh-table td {
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+/* ---------- Прочее ---------- */
+
+.zh-open-plan {
   margin-top: var(--size-4-4);
   font-size: var(--font-ui-small);
 }
 
-.wp-setup {
+.zh-setup {
   display: flex;
   flex-direction: column;
   gap: var(--size-4-2);
-  align-items: stretch;
 }
 
-.wp-setup button {
+.zh-setup button {
   min-height: 44px;
 }
 
-.wp-candidate {
+.zh-candidate {
   text-align: left;
   white-space: normal;
   height: auto;
   padding: 8px 12px;
 }
 
-.wp-muted {
-  color: var(--text-muted);
-  font-size: var(--font-ui-small);
+.zh-modal-input {
+  width: 100%;
+  min-height: 40px;
+  font-size: 16px;
 }

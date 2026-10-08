@@ -12,8 +12,8 @@ export default class WorkoutPlugin extends Plugin {
     this.store = new PlanStore(this.app, this);
     this.registerView(VIEW_TYPE, (leaf) => new WorkoutView(leaf, this));
 
-    this.addRibbonIcon('dumbbell', 'Тренировка', () => this.openView());
-    this.addCommand({ id: 'open', name: 'Открыть панель тренировки', callback: () => this.openView() });
+    this.addRibbonIcon('dumbbell', 'Железо', () => this.openView());
+    this.addCommand({ id: 'open', name: 'Открыть Железо', callback: () => this.openView() });
     this.addCommand({
       id: 'use-active-note',
       name: 'Сделать открытую заметку планом тренировок',
@@ -41,8 +41,7 @@ export default class WorkoutPlugin extends Plugin {
   }
 
   async usePlan(file: TFile) {
-    this.settings.planPath = file.path;
-    await this.saveSettings();
+    await this.store.use(file);
     new Notice(`План тренировок: «${file.basename}»`);
     this.refreshViews();
     await this.openView();
