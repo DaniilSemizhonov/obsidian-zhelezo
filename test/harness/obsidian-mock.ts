@@ -7,7 +7,7 @@ const P = HTMLElement.prototype as any;
 function applyOpts(el: HTMLElement, o: any) {
   if (typeof o === 'string') { el.className = o; return; }
   if (!o) return;
-  if (o.cls) el.className = Array.isArray(o.cls) ? o.cls.join(' ') : o.cls;
+  if (o.cls) for (const c of Array.isArray(o.cls) ? o.cls : o.cls.split(' ')) el.classList.add(c);
   if (o.text !== undefined) el.textContent = String(o.text);
   if (o.value !== undefined) (el as any).value = o.value;
   if (o.type !== undefined) (el as any).type = o.type;

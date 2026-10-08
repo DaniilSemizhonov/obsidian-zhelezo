@@ -83,6 +83,17 @@ export class WorkoutView extends ItemView {
     await this.render();
   }
 
+  private lastWidth = 0;
+
+  /** Obsidian вызывает при изменении размера панели — график рисуется под ширину. */
+  onResize() {
+    const w = this.contentEl.clientWidth;
+    if (this.tab === 'progress' && Math.abs(w - this.lastWidth) > 40) {
+      this.lastWidth = w;
+      this.requestRender();
+    }
+  }
+
   requestRender() {
     const active = document.activeElement;
     if (this.contentEl.contains(active) && (active instanceof HTMLInputElement || active instanceof HTMLSelectElement)) {
@@ -126,7 +137,7 @@ export class WorkoutView extends ItemView {
       this.sel = suggestion ?? { mc: plan.mcNames.length, workout: Math.max(1, plan.workouts.length) };
     }
 
-    const body = el.createDiv('zh-body');
+    const body = el.createDiv({ cls: ['zh-body', `zh-body-${this.tab}`] });
     if (this.tab === 'today') this.renderToday(body, plan, journal, suggestion);
     else if (this.tab === 'plan') this.renderEditor(body, plan);
     else if (this.tab === 'journal') this.renderJournal(body, plan, journal);
@@ -146,7 +157,7 @@ export class WorkoutView extends ItemView {
     switcher.onclick = (evt) => this.planMenu(evt, state);
 
     if (state.kind !== 'ok') return;
-    const tabs = el.createDiv('zh-tabs');
+    const tabs = top.createDiv('zh-tabs');
     for (const [id, label, icon] of TABS) {
       const b = tabs.createEl('button', { cls: 'zh-tab' });
       b.toggleClass('is-active', id === this.tab);
@@ -253,7 +264,7 @@ export class WorkoutView extends ItemView {
     const entry = journal.find((j) => key(j) === key(sel));
     if (entry) {
       el.createDiv({
-        cls: `zh-note ${entry.status === 'skipped' ? 'is-skipped' : ''}`,
+        cls: entry.status === 'skipped' ? ['zh-note', 'is-skipped'] : 'zh-note',
         text: entry.status === 'skipped' ? `Пропущена: ${dayRu(entry.date)}` : `Сделана: ${dayRu(entry.date)}`,
       });
     }
@@ -277,7 +288,7 @@ export class WorkoutView extends ItemView {
     workout.exercises.forEach((ex, ei) => this.renderExercise(list, ex, ei, sel, checks));
 
     const footer = el.createDiv('zh-footer');
-    const finish = footer.createEl('button', { cls: 'mod-cta zh-finish', text: 'Записать тренировку' });
+    const finish = footer.createEl('button', { cls: ['mod-cta', 'zh-finish'], text: 'Записать тренировку' });
     finish.onclick = () =>
       this.run(async () => {
         const daily = await this.store.log(plan, sel, todayIso(), 'done');
@@ -323,7 +334,7 @@ export class WorkoutView extends ItemView {
   }
 
   private renderInput(parent: HTMLElement, label: string, value: string, hint: string, w: number, e: number, mc: number, field: Field) {
-    const wrap = parent.createEl('label', { cls: `zh-field zh-field-${field}` });
+    const wrap = parent.createEl('label', { cls: ['zh-field', `zh-field-${field}`] });
     wrap.createSpan({ cls: 'zh-field-label', text: label });
     const input = this.textInput(wrap, value, field === 'weight' ? '—' : '', (v) => this.store.setCell(w, e, mc, field, v));
     input.addClass('zh-input');
@@ -368,7 +379,7 @@ export class WorkoutView extends ItemView {
   // Редактор плана
 
   private iconButton(parent: HTMLElement, icon: string, label: string, onClick: () => void, cls = '') {
-    const b = parent.createEl('button', { cls: `clickable-icon zh-icon-btn ${cls}`, attr: { 'aria-label': label } });
+    const b = parent.createEl('button', { cls: ['clickable-icon', 'zh-icon-btn', ...(cls ? [cls] : [])], attr: { 'aria-label': label } });
     setIcon(b, icon);
     b.onclick = onClick;
     return b;
@@ -451,7 +462,7 @@ export class WorkoutView extends ItemView {
     // ---- Упражнения ----
     const list = wBox.createDiv('zh-list');
     workout.exercises.forEach((ex, ei) => {
-      const card = list.createDiv('zh-card zh-edit-card');
+      const card = list.createDiv({ cls: ['zh-card', 'zh-edit-card'] });
       const top = card.createDiv('zh-edit-top');
       top.createSpan({ cls: 'zh-edit-num', text: `${ei + 1}.` });
       this.textInput(top, ex.name, 'Название', (v) => this.store.edit((p) => E.updateExercise(p, wi, ei, { name: v }))).addClass('zh-input');
@@ -504,7 +515,9 @@ export class WorkoutView extends ItemView {
     const done = journal.filter((j) => j.status === 'done').length;
     const skipped = journal.filter((j) => j.status === 'skipped').length;
 
-    const stats = el.createDiv('zh-stats');
+    const side = el.createDiv('zh-side');
+    const main = el.createDiv('zh-main');
+    const stats = side.createDiv('zh-stats');
     const stat = (value: string, label: string) => {
       const s = stats.createDiv('zh-stat');
       s.createDiv({ cls: 'zh-stat-value', text: value });
@@ -515,18 +528,18 @@ export class WorkoutView extends ItemView {
     const last = journal.find((j) => j.status === 'done');
     stat(last ? dayRu(last.date) : '—', 'последняя');
 
-    const add = el.createEl('button', { cls: 'mod-cta zh-add-wide', text: 'Отметить тренировку…' });
+    const add = side.createEl('button', { cls: ['mod-cta', 'zh-add-wide'], text: 'Отметить тренировку…' });
     add.onclick = async () => {
       const res = await logModal(this.app, plan, this.store.suggest(plan, journal) ?? this.sel!);
       if (res) await this.run(() => this.store.log(plan, res, res.date, res.status, res.note), 'Сохранено в журнале');
     };
 
     if (!journal.length) {
-      el.createDiv({ cls: 'zh-empty', text: 'Записей пока нет. Тренировка попадает сюда кнопкой «Записать тренировку» или «Отметить тренировку…».' });
+      main.createDiv({ cls: 'zh-empty', text: 'Записей пока нет. Тренировка попадает сюда кнопкой «Записать тренировку» или «Отметить тренировку…».' });
       return;
     }
     const inPlan = new Set(plan.journal.map((j) => `${j.date}:${key(j)}`));
-    const list = el.createDiv('zh-journal');
+    const list = main.createDiv('zh-journal');
     for (const j of journal) {
       const row = list.createDiv('zh-journal-row');
       row.toggleClass('is-skipped', j.status === 'skipped');
@@ -575,7 +588,9 @@ export class WorkoutView extends ItemView {
     if (!this.progressEx || !all.some((a) => a.id === this.progressEx)) {
       this.progressEx = [...all].sort((a, b) => numeric(b.ex) - numeric(a.ex))[0].id;
     }
-    const select = el.createEl('select', { cls: 'dropdown zh-select' });
+    const main = el.createDiv('zh-main');
+    const side = el.createDiv('zh-side');
+    const select = main.createEl('select', { cls: ['dropdown', 'zh-select'] });
     for (const [wi, w] of plan.workouts.entries()) {
       const group = select.createEl('optgroup', { attr: { label: w.name } });
       w.exercises.forEach((ex, ei) => group.createEl('option', { text: ex.name, value: `${wi}:${ei}` }));
@@ -592,7 +607,7 @@ export class WorkoutView extends ItemView {
       .filter((p): p is { mc: number; value: number; raw: string; sp: string } => p.value !== null);
 
     // Главная цифра — лучший результат.
-    const hero = el.createDiv('zh-hero');
+    const hero = main.createDiv('zh-hero');
     if (points.length) {
       const best = points.reduce((a, b) => (b.value >= a.value ? b : a));
       hero.createDiv({ cls: 'zh-hero-value', text: best.raw });
@@ -606,10 +621,10 @@ export class WorkoutView extends ItemView {
       hero.createDiv({ cls: 'zh-hero-label', text: 'Весов пока нет — вписывайте их на вкладке «Тренировка».' });
     }
 
-    if (points.length >= 2) this.renderChart(el, points, plan.mcNames.length);
+    if (points.length >= 2) this.renderChart(main, points, plan.mcNames.length);
 
     // Таблица — та же информация без графика (и для тех, кто хочет точные значения).
-    const table = el.createEl('table', { cls: 'zh-table' });
+    const table = side.createEl('table', { cls: 'zh-table' });
     const head = table.createEl('thead').createEl('tr');
     for (const h of ['МЦ', 'С×П', 'Вес', 'Заметка']) head.createEl('th', { text: h });
     const tbody = table.createEl('tbody');
@@ -624,9 +639,11 @@ export class WorkoutView extends ItemView {
 
   /** Линия веса по микроциклам: одна серия → без легенды, точки с подсказкой при наведении/нажатии. */
   private renderChart(el: HTMLElement, points: { mc: number; value: number; raw: string; sp: string }[], mcCount: number) {
-    const W = 340;
-    const H = 180;
-    const pad = { l: 36, r: 12, t: 12, b: 26 };
+    const wrap = el.createDiv('zh-chart');
+    // Рисуем в реальных пикселях панели: если растягивать viewBox, вместе с графиком раздуваются и подписи.
+    const W = Math.max(280, Math.min(720, wrap.clientWidth || 340));
+    const H = W > 480 ? 240 : 180;
+    const pad = { l: 36, r: 16, t: 16, b: 26 };
     // Шкала с «круглым» шагом (1, 2, 5, 10…), чтобы подписи были ровными.
     const values = points.map((p) => p.value);
     const rawLo = Math.min(...values);
@@ -639,10 +656,11 @@ export class WorkoutView extends ItemView {
     const x = (mc: number) => pad.l + ((mc - 1) / Math.max(1, mcCount - 1)) * (W - pad.l - pad.r);
     const y = (v: number) => pad.t + (1 - (v - lo) / (hi - lo)) * (H - pad.t - pad.b);
 
-    const wrap = el.createDiv('zh-chart');
     const NS = 'http://www.w3.org/2000/svg';
     const svg = document.createElementNS(NS, 'svg');
     svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    svg.setAttribute('width', String(W));
+    svg.setAttribute('height', String(H));
     svg.setAttribute('role', 'img');
     svg.setAttribute('aria-label', `Вес по микроциклам: ${points.map((p) => `МЦ${p.mc} ${p.raw}`).join(', ')}`);
     wrap.appendChild(svg);
