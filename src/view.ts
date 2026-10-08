@@ -96,7 +96,7 @@ export class WorkoutView extends ItemView {
 
   requestRender() {
     const active = document.activeElement;
-    if (this.contentEl.contains(active) && (active instanceof HTMLInputElement || active instanceof HTMLSelectElement)) {
+    if (this.contentEl.contains(active) && (active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement || active instanceof HTMLSelectElement)) {
       this.pendingRender = true;
       return;
     }
@@ -334,20 +334,43 @@ export class WorkoutView extends ItemView {
   }
 
   private renderInput(parent: HTMLElement, label: string, value: string, hint: string, w: number, e: number, mc: number, field: Field) {
-    const wrap = parent.createEl('label', { cls: ['zh-field', `zh-field-${field}`] });
+    // Длинный текст в поле веса («ИВН 8-9 (стараемся…)» у разминки) — поле во всю ширину карточки.
+    const long = field === 'weight' && value.length > 10;
+    const wrap = parent.createEl('label', { cls: ['zh-field', `zh-field-${field}`, ...(long ? ['is-long'] : [])] });
     wrap.createSpan({ cls: 'zh-field-label', text: label });
-    const input = this.textInput(wrap, value, field === 'weight' ? '—' : '', (v) => this.store.setCell(w, e, mc, field, v));
+    const input = this.textInput(wrap, value, field === 'weight' ? '—' : '', (v) => this.store.setCell(w, e, mc, field, v), long);
     input.addClass('zh-input');
     if (hint) wrap.createSpan({ cls: 'zh-field-hint', text: hint });
   }
 
   /** Поле, которое сохраняется при уходе из него (или по Enter). */
-  private textInput(parent: HTMLElement, value: string, placeholder: string, save: (v: string) => Promise<unknown>): HTMLInputElement {
-    const input = parent.createEl('input', { type: 'text', attr: { autocapitalize: 'off', autocomplete: 'off', enterkeyhint: 'done', placeholder } });
+  /**
+   * Поле, которое сохраняется при уходе из него (или по Enter).
+   * multiline — многострочное, растёт под текст: для длинных значений вроде «ИВН 8-9 (стараемся…)».
+   */
+  private textInput(
+    parent: HTMLElement,
+    value: string,
+    placeholder: string,
+    save: (v: string) => Promise<unknown>,
+    multiline = false
+  ): HTMLInputElement | HTMLTextAreaElement {
+    const attr = { autocapitalize: 'off', autocomplete: 'off', enterkeyhint: 'done', placeholder };
+    const input = multiline ? parent.createEl('textarea', { attr: { ...attr, rows: '1' } }) : parent.createEl('input', { type: 'text', attr });
     input.value = value;
+    const grow = () => {
+      if (!(input instanceof HTMLTextAreaElement)) return;
+      input.style.height = 'auto';
+      input.style.height = `${input.scrollHeight + 2}px`;
+    };
+    if (multiline) {
+      input.addEventListener('input', grow);
+      // Высота известна только после того, как поле попало на страницу.
+      window.requestAnimationFrame(grow);
+    }
     let saved = value;
     input.addEventListener('change', async () => {
-      const v = input.value.trim();
+      const v = input.value.replace(/\s*\n\s*/g, ' ').trim();
       if (v === saved) return;
       try {
         await save(v);
@@ -356,7 +379,13 @@ export class WorkoutView extends ItemView {
         new Notice(`Не удалось сохранить: ${(err as Error).message}`, 8000);
       }
     });
-    input.addEventListener('keydown', (evt) => evt.key === 'Enter' && input.blur());
+    // Enter — сохранить, а не перенос строки (ячейка таблицы однострочная).
+    input.addEventListener('keydown', (evt: Event) => {
+      if ((evt as KeyboardEvent).key === 'Enter') {
+        evt.preventDefault();
+        input.blur();
+      }
+    });
     return input;
   }
 

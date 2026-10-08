@@ -858,3 +858,78 @@
     min-height: 32px;
   }
 }
+
+/* =====================================================================
+   Телефон: Obsidian по-своему оформляет button и input (плашки, «таблетки»),
+   а снизу у него плавающая панель. Возвращаем свой вид и отступы.
+   Двойной класс .zh-view.zh-view — чтобы перебить стили приложения и тем без !important.
+   ===================================================================== */
+
+.zh-view.zh-view button.zh-check,
+.zh-view.zh-view button.zh-tab,
+.zh-view.zh-view button.zh-plan-switch {
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.zh-view.zh-view button.zh-check {
+  border-radius: 50%;
+  padding: 0;
+  min-height: 0;
+}
+
+.zh-view.zh-view button.zh-tab {
+  border-radius: var(--radius-s);
+  padding: 6px 2px;
+}
+
+.zh-view.zh-view button.zh-tab.is-active {
+  background-color: var(--background-primary);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+.zh-view.zh-view button.zh-plan-switch {
+  padding: 4px 8px;
+  min-height: 0;
+  border-radius: var(--radius-s);
+}
+
+.zh-view.zh-view.zh-view input.zh-input[type='text'],
+.zh-view.zh-view.zh-view textarea.zh-input {
+  height: auto;
+  border-radius: var(--radius-s);
+  padding: 8px 12px;
+  line-height: 1.35;
+}
+
+.zh-view textarea.zh-input {
+  display: block;
+  box-sizing: border-box;
+  resize: none;
+  overflow: hidden;
+  font-family: inherit;
+  color: var(--text-normal);
+  background: var(--background-modifier-form-field);
+  border: 1px solid var(--background-modifier-border);
+}
+
+.zh-input {
+  box-sizing: border-box;
+}
+
+/* Длинное значение веса — во всю ширину, заметка строкой ниже. */
+.zh-fields .zh-field-weight.is-long,
+.zh-fields .zh-field-weight.is-long + .zh-field-note {
+  grid-column: 1 / -1;
+}
+
+.is-mobile .zh-view {
+  padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px));
+}
+
+/* На телефоне кнопка «Записать» не прилипает к низу: там плавающая панель Obsidian. */
+.is-mobile .zh-footer {
+  position: static;
+  background: none;
+}
