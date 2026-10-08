@@ -2,8 +2,16 @@
 
 .zh-view {
   padding: var(--size-4-3) var(--size-4-3) var(--size-4-8);
+  /* Раскладка зависит от ширины самой панели, а не окна: вкладку можно открыть и на весь экран, и в узкой колонке. */
+  container-type: inline-size;
+  container-name: zh;
+}
+
+.zh-top,
+.zh-body,
+.zh-setup {
   max-width: 640px;
-  margin: 0 auto;
+  margin-inline: auto;
 }
 
 /* ---------- Переключатель плана и вкладки ---------- */
@@ -524,7 +532,7 @@
 }
 
 .zh-chart svg {
-  width: 100%;
+  max-width: 100%;
   height: auto;
   display: block;
   overflow: visible;
@@ -630,4 +638,223 @@
   width: 100%;
   min-height: 40px;
   font-size: 16px;
+}
+
+/* =====================================================================
+   Широкая панель (компьютер): две колонки, всё видно без прокрутки
+   ===================================================================== */
+
+@container zh (min-width: 760px) {
+  .zh-top,
+  .zh-body {
+    max-width: 1180px;
+  }
+
+  /* Переключатель плана и вкладки — одной строкой. */
+  .zh-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--size-4-4);
+    margin-bottom: var(--size-4-4);
+  }
+
+  .zh-plan-switch {
+    margin: 0 0 0 -8px;
+    font-size: var(--font-ui-medium);
+    font-weight: var(--font-semibold);
+    color: var(--text-normal);
+  }
+
+  .zh-tabs {
+    display: flex;
+    flex: 0 0 auto;
+    margin: 0;
+  }
+
+  .zh-tab {
+    flex-direction: row;
+    gap: 6px;
+    min-height: 32px;
+    padding: 4px 14px;
+    font-size: var(--font-ui-small);
+  }
+
+  .zh-tab svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Тренировка: упражнения сеткой, кнопки в ряд. */
+  .zh-body-today .zh-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    align-items: start;
+  }
+
+  .zh-body-today .zh-footer {
+    position: static;
+    display: flex;
+    gap: var(--size-4-2);
+    background: none;
+    padding-top: var(--size-4-4);
+  }
+
+  .zh-finish {
+    width: auto;
+    padding: 0 var(--size-4-6);
+  }
+
+  .zh-footer-more {
+    display: flex;
+    margin-top: 0;
+  }
+
+  .zh-footer-more button {
+    padding: 0 var(--size-4-4);
+  }
+
+  /* План: микроциклы слева, тренировка справа. */
+  .zh-body-plan {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: var(--size-4-8);
+    align-items: start;
+  }
+
+  .zh-body-plan > .zh-section:first-child {
+    position: sticky;
+    top: 0;
+  }
+
+  .zh-body-plan .zh-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    align-items: start;
+  }
+
+  .zh-sp-grid {
+    grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  }
+
+  .zh-workout-head .zh-input-title {
+    max-width: 480px;
+  }
+
+  /* Журнал: сводка слева, список справа. */
+  .zh-body-journal {
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: var(--size-4-8);
+    align-items: start;
+  }
+
+  .zh-body-journal .zh-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .zh-body-journal .zh-journal {
+    margin-top: 0;
+  }
+
+  /* Прогресс: график слева, таблица справа. */
+  .zh-body-progress {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(260px, 2fr);
+    gap: var(--size-4-8);
+    align-items: start;
+  }
+
+  .zh-body-progress > .zh-progress {
+    grid-column: 1 / -1;
+    margin-top: 0;
+  }
+
+  /* График не растягиваем: иначе вместе с ним раздуваются подписи. */
+  .zh-chart {
+    max-width: 620px;
+  }
+
+  .zh-body-progress .zh-select {
+    max-width: 420px;
+  }
+
+  .zh-body > .zh-open-plan {
+    grid-column: 1 / -1;
+  }
+}
+
+/* =====================================================================
+   Мышь вместо пальца: компактнее и с подсветкой при наведении
+   ===================================================================== */
+
+@media (hover: hover) and (pointer: fine) {
+  .zh-chip {
+    min-height: 30px;
+    padding: 0 10px;
+  }
+
+  .zh-chip:hover:not(.is-active) {
+    background: var(--background-modifier-hover);
+  }
+
+  .zh-input {
+    min-height: 32px;
+    font-size: var(--font-ui-medium);
+  }
+
+  .zh-check {
+    width: 36px;
+    height: 36px;
+    margin: -4px 0 0 -4px;
+  }
+
+  .zh-check svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .zh-check:hover {
+    color: var(--color-green);
+  }
+
+  .zh-card:hover {
+    border-color: var(--background-modifier-border-hover);
+  }
+
+  .zh-finish,
+  .zh-add-wide {
+    min-height: 38px;
+    font-size: var(--font-ui-small);
+  }
+
+  .zh-footer-more button,
+  .zh-add,
+  .zh-setup button {
+    min-height: 32px;
+    font-size: var(--font-ui-small);
+  }
+
+  .zh-icon-btn {
+    width: 30px;
+    height: 30px;
+  }
+
+  .zh-tab:hover:not(.is-active) {
+    color: var(--text-normal);
+  }
+
+  .zh-journal-row {
+    padding: 6px 8px;
+    margin: 0 -8px;
+    border-radius: var(--radius-s);
+  }
+
+  .zh-journal-row:hover {
+    background: var(--background-modifier-hover);
+  }
+
+  .zh-select {
+    min-height: 32px;
+  }
 }
