@@ -48,6 +48,8 @@ export class WorkoutView extends ItemView {
   private progressEx: string | null = null; // «w:e» для вкладки «Прогресс»
   private pendingRender = false;
   private renderId = 0;
+  private progressFill: HTMLElement | null = null;
+  private progressText: HTMLElement | null = null;
 
   constructor(leaf: WorkspaceLeaf, private plugin: WorkoutPlugin) {
     super(leaf);
@@ -126,7 +128,21 @@ export class WorkoutView extends ItemView {
     if (id !== this.renderId) return;
 
     const el = this.contentEl;
+    // Без этого телефон прыгает наверх: на время перестройки содержимое пустое и прокрутка сбрасывается.
+    const scroll = el.scrollTop;
     el.empty();
+    try {
+      this.renderBody(el, state, journal);
+    } finally {
+      el.scrollTop = scroll;
+      // Многострочные поля добирают высоту в следующем кадре — восстанавливаем ещё раз.
+      window.requestAnimationFrame(() => {
+        if (id === this.renderId) el.scrollTop = scroll;
+      });
+    }
+  }
+
+  private renderBody(el: HTMLElement, state: PlanState, journal: JournalRow[]) {
     this.renderTop(el, state);
     if (state.kind !== 'ok') return this.renderSetup(el, state);
 
@@ -272,8 +288,9 @@ export class WorkoutView extends ItemView {
     const checks = new Set(this.plugin.settings.checks[key(sel)] ?? []);
     const total = workout.exercises.length;
     const progress = el.createDiv('zh-progress');
-    progress.createDiv('zh-progress-bar').createDiv('zh-progress-fill').style.width = `${total ? (checks.size / total) * 100 : 0}%`;
-    progress.createDiv({ cls: 'zh-progress-text', text: `${checks.size} из ${total}` });
+    this.progressFill = progress.createDiv('zh-progress-bar').createDiv('zh-progress-fill');
+    this.progressText = progress.createDiv('zh-progress-text');
+    this.setProgress(checks.size, total);
 
     if (!total) {
       const empty = el.createDiv('zh-empty');
@@ -313,12 +330,16 @@ export class WorkoutView extends ItemView {
     const row = ex.rows.find((r) => r.mc === sel.mc);
     const card = list.createDiv('zh-card');
     const isDone = checks.has(ei);
-    card.toggleClass('is-done', isDone);
 
     const top = card.createDiv('zh-card-top');
-    const check = top.createEl('button', { cls: 'zh-check', attr: { 'aria-label': isDone ? 'Снять отметку' : 'Сделано' } });
-    setIcon(check, isDone ? 'check-circle-2' : 'circle');
-    check.onclick = () => this.toggleCheck(sel, ei);
+    const check = top.createEl('button', { cls: 'zh-check' });
+    const paint = (done: boolean) => {
+      card.toggleClass('is-done', done);
+      check.setAttr('aria-label', done ? 'Снять отметку' : 'Сделано');
+      setIcon(check, done ? 'check-circle-2' : 'circle');
+    };
+    paint(isDone);
+    check.onclick = () => this.toggleCheck(sel, ei, paint);
 
     const info = top.createDiv('zh-card-info');
     info.createDiv({ cls: 'zh-card-name', text: `${ei + 1}. ${ex.name}` });
@@ -389,14 +410,21 @@ export class WorkoutView extends ItemView {
     return input;
   }
 
-  private async toggleCheck(sel: Done, ei: number) {
+  private setProgress(done: number, total: number) {
+    if (this.progressFill) this.progressFill.style.width = `${total ? (done / total) * 100 : 0}%`;
+    this.progressText?.setText(`${done} из ${total}`);
+  }
+
+  /** Отметка меняет только свою карточку и полоску прогресса — без перерисовки панели. */
+  private async toggleCheck(sel: Done, ei: number, paint: (done: boolean) => void) {
     const set = new Set(this.plugin.settings.checks[key(sel)] ?? []);
     if (set.has(ei)) set.delete(ei);
     else set.add(ei);
     if (set.size) this.plugin.settings.checks[key(sel)] = [...set].sort((a, b) => a - b);
     else delete this.plugin.settings.checks[key(sel)];
+    paint(set.has(ei));
+    this.setProgress(set.size, this.contentEl.querySelectorAll('.zh-list > .zh-card').length);
     await this.plugin.saveSettings();
-    this.render();
   }
 
   private select(d: Done) {

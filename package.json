@@ -1,6 +1,6 @@
 {
   "name": "obsidian-zhelezo",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Железо — панель тренировки для Obsidian",
   "main": "main.js",
   "scripts": {
