@@ -308,10 +308,8 @@ export class WorkoutView extends ItemView {
     const finish = footer.createEl('button', { cls: ['mod-cta', 'zh-finish'], text: 'Записать тренировку' });
     finish.onclick = () =>
       this.run(async () => {
+        // Галочки и выбранная тренировка остаются: видно, что сделано.
         const daily = await this.store.log(plan, sel, todayIso(), 'done');
-        delete this.plugin.settings.checks[key(sel)];
-        await this.plugin.saveSettings();
-        this.sel = null; // дальше — следующая по плану
         new Notice(daily ? `Записано в журнал и в «${daily.basename}» 💪` : 'Записано в журнал 💪');
       });
     const more = footer.createDiv('zh-footer-more');
